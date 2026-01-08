@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMM Store</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #1c1c1c; color: white; padding: 20px; }
+        .card { background: #2b2b2b; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #3d3d3d; cursor: pointer; }
+        .card.active { border-color: #0088cc; background: #323a45; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #3d3d3d; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #0088cc; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .price-tag { font-size: 0.9em; color: #aaa; }
+    </style>
+</head>
+<body>
+    <h3>🚀 Накрутка Telegram</h3>
+    
+    <div id="services">
+        <div class="card" onclick="select('views', 0.06)"><b>👁 Просмотры</b><br><span class="price-tag">0.06$ / 1к</span></div>
+        <div class="card" onclick="select('reactions', 0.10)"><b>🔥 Реакции</b><br><span class="price-tag">0.10$ / 1к</span></div>
+        <div class="card" onclick="select('prem_reactions', 0.50)"><b>🌟 Прем. Реакции</b><br><span class="price-tag">0.50$ / 1к</span></div>
+        <div class="card" onclick="select('subs', 0.30)"><b>👥 Подписчики</b><br><span class="price-tag">0.30$ / 1к</span></div>
+        <div class="card" onclick="select('subs_no_drop', 1.50)"><b>💎 Без отписки</b><br><span class="price-tag">1.50$ / 1к</span></div>
+    </div>
+
+    <input type="number" id="quantity" placeholder="Количество (мин. 100)" oninput="calc()">
+    <input type="text" id="link" placeholder="Ссылка на пост/канал">
+    
+    <div id="total" style="margin: 10px 0; font-weight: bold;">Итого: 0$</div>
+    <button onclick="send()">ЗАПУСТИТЬ</button>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        let currentService = '';
+        let currentPrice = 0;
+
+        function select(id, price) {
+            currentService = id;
+            currentPrice = price;
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            calc();
+        }
+
+        function calc() {
+            let qty = document.getElementById('quantity').value || 0;
+            let total = (qty / 1000) * currentPrice;
+            document.getElementById('total').innerText = `Итого: ${total.toFixed(3)}$`;
+        }
+
+        function send() {
+            let qty = document.getElementById('quantity').value;
+            let link = document.getElementById('link').value;
+            if (!currentService || !qty || !link) return alert("Заполни все поля!");
+            
+            let data = {
+                service: currentService,
+                quantity: parseInt(qty),
+                link: link,
+                price_usd: (qty / 1000) * currentPrice
+            };
+            tg.sendData(JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>
