@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Nexus SMM</title>
+    <title>Nexus Boost</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -36,14 +36,14 @@
             border-radius: 16px;
             padding: 12px 8px;
             text-align: center;
-            transition: 0.3s;
+            transition: 0.2s;
             cursor: pointer;
         }
 
         .service-card.active {
             border-color: var(--accent-color);
             background: rgba(59, 130, 246, 0.1);
-            transform: translateY(-2px);
+            transform: scale(0.98);
         }
 
         .service-card span { font-size: 24px; display: block; margin-bottom: 4px; }
@@ -74,7 +74,7 @@
             padding: 12px;
             text-align: center;
             font-weight: 700;
-            font-size: 18px;
+            font-size: 20px;
             margin-top: 8px;
         }
 
@@ -91,31 +91,34 @@
             width: 100%;
             margin-top: 10px;
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            cursor: pointer;
         }
+
+        #main-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>Nexus Boost</h1>
-        <p>Быстрое продвижение вашего канала</p>
+        <p>Премиальное продвижение</p>
     </div>
 
     <div class="section-title">Выберите услугу</div>
-<div class="grid">
-    <div class="service-card active" onclick="selectService('views', 0.06, this)">
-        <span>👁</span>
-        <label>Просмотры</label>
+    <div class="grid">
+        <div class="service-card active" onclick="selectService('views', 0.060, this)">
+            <span>👁</span>
+            <label>Просмотры</label>
+        </div>
+        <div class="service-card" onclick="selectService('reactions', 0.10, this)">
+            <span>🔥</span>
+            <label>Реакции</label>
+        </div>
+        <div class="service-card" onclick="selectService('subs', 1.20, this)">
+            <span>👤</span>
+            <label>Подписчики</label>
+        </div>
     </div>
-    <div class="service-card" onclick="selectService('reactions', 0.10, this)">
-        <span>🔥</span>
-        <label>Реакции</label>
-    </div>
-    <div class="service-card" onclick="selectService('subs', 1.20, this)">
-        <span>👤</span>
-        <label>Подписчики</label>
-    </div>
-</div>
 
     <div class="section-title">Детали заказа</div>
     <div class="input-group">
@@ -124,7 +127,7 @@
     </div>
 
     <div class="price-box" id="price-display">
-        0.00$ <span>итого</span>
+        0.000$ <span>итого</span>
     </div>
 
     <button id="main-btn" onclick="sendOrder()">Оформить заказ</button>
@@ -133,12 +136,14 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Текущие значения по умолчанию
         let currentService = 'views';
-        let currentPricePer1000 = 0.03;
+        let currentPricePer1000 = 0.060;
 
         function selectService(service, price, el) {
             currentService = service;
             currentPricePer1000 = price;
+            // Убираем активный класс у всех и ставим текущему
             document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
             calculate();
@@ -147,7 +152,8 @@
         function calculate() {
             let q = document.getElementById('quantity').value || 0;
             let total = (q / 1000) * currentPricePer1000;
-            document.getElementById('price-display').innerHTML = total.toFixed(2) + '$ <span>итого</span>';
+            // Используем 3 знака, чтобы видеть цену за дешевые просмотры
+            document.getElementById('price-display').innerHTML = total.toFixed(3) + '$ <span>итого</span>';
         }
 
         function sendOrder() {
@@ -156,7 +162,7 @@
             let total = (q / 1000) * currentPricePer1000;
 
             if (!link || q < 100) {
-                tg.showAlert("Введите корректную ссылку и количество (мин. 100)");
+                tg.showAlert("Укажите ссылку и количество от 100 шт.");
                 return;
             }
 
@@ -164,7 +170,7 @@
                 service: currentService,
                 quantity: q,
                 link: link,
-                price_usd: total.toFixed(2)
+                price_usd: total.toFixed(3)
             };
 
             tg.sendData(JSON.stringify(data));
